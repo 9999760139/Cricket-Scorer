@@ -1,5 +1,5 @@
 
-const  reducer = (state='',action) =>{
+const  reducer = (state='visitor',action) =>{
     if(action.type==='VisiorTeam'){
         return state = action.payload
     }

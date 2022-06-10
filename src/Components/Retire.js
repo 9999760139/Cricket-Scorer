@@ -7,82 +7,62 @@ import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
 import { Button, Grid, IconButton, Typography } from '@mui/material';
 import Header from './Header';
-import Popper from '@mui/material/Popper';
-import Fade from '@mui/material/Fade';
-import Paper from '@mui/material/Paper';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Retire() {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [open, setOpen] = React.useState(false);
-    const [placement, setPlacement] = React.useState();
     const [value, setValue] = React.useState('female');
 
-    const handleChange = (event) => { 
-        setValue((event.target.value));
+    const navigate = useNavigate();
+    const handleChange = (e) => {
+        const names = e.target.name;
+        const values = e.target.value;
+        console.log(names,":",values);
     };
-    const handleClick = (newPlacement) => (event) => {
-        // setAnchorEl(event.currentTarget);
-        // setOpen((prev) => placement !== newPlacement || !prev);
-        // setPlacement(newPlacement);
-    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const names = e.target.name;
+        const values = e.target.value;
+        console.log(names,":",values);
+        navigate("/livematch")
+    }
     return (
         <div>
             <Header />
-            <Popper open={open} anchorEl={anchorEl} placement={placement} transition >
-                {({ TransitionProps }) => (
-                    <Fade {...TransitionProps} timeout={350} >
-                        <Paper >
-                            <Typography className='popup' sx={{ p: 2 }}>Extras:0 B,0 LB,0 WD,0 NB,0 P</Typography>
-                        </Paper>
-                    </Fade>
-                )}
-            </Popper>
-            <Popper open={open} anchorEl={anchorEl} placement={placement} transition >
-                {({ TransitionProps }) => (
-                    <Fade {...TransitionProps} timeout={350} >
-                        <Paper >
-                            <Typography className='popup' sx={{ p: 2 }}>Extras:0 LB,0 WD,0 NB,0 P</Typography>
-                        </Paper>
-                    </Fade>
-                )}
-            </Popper>
             <div className='retireMain'>
-                <FormControl>
+                <form onSubmit={handleSubmit}>
                     <Typography variant="h6" >Select Player to Retire</Typography>
                     <RadioGroup
+                        required
                         aria-labelledby="demo-controlled-radio-buttons-group"
                         name="controlled-radio-buttons-group"
                         value={value}
                         onChange={handleChange}
                         className="retirradio"
                     >
-                        <FormControlLabel value="striker" control={<Radio />} label="striker" />
-                        <FormControlLabel value="nonstriker" control={<Radio />} label="nonstriker" />
+                        <FormControlLabel name='striker' checked value="striker" control={<Radio />} label="striker" />
+                        <FormControlLabel name='nonstriker' value="nonstriker" control={<Radio />} label="nonstriker" />
                     </RadioGroup>
-                </FormControl>
-                <br />
-                <Typography variant='h6'>Replaced By?</Typography>
-                {/* <br/> */}
-                <TextField
-                    className='retirInput'
-                    id="standard-number"
-                    //   label="Number"
-                    type="text"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                    variant="standard"
-                />
-                <br />
-                <br />
-                <Button variant='contained'>Done</Button>
+                    <br />
+                    <Typography variant='h6'>Replaced By?</Typography>
+                    {/* <br/> */}
+                    <TextField
+                        required
+                        name='newbatsman'
+                        className='retirInput'
+                        id="standard-number"
+                        //   label="Number"
+                        type="text"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        variant="standard"
+                    />
+                    <br />
+                    <br />
+                    <Button variant='contained' type='submit' >Done</Button>
+                </form>
             </div>
-            <Grid container justifyContent="center">
-                <Grid item>
-                    <Button onClick={handleClick('bottom')}>bottom</Button>
-                </Grid>
-            </Grid>
 
         </div>
     )

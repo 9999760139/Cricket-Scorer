@@ -1,6 +1,8 @@
+
+
 const reducer= (state=0,action) =>{
-    if (action.payload==="fours"){
-        return state + 1;
+    if(action.type==='byes'){
+        return state + action.payload;
     }
     else{
         return state;

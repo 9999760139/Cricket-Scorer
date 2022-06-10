@@ -14,6 +14,7 @@ import Form from './Components/Form';
 import LiveMatchs from './Components/LiveMatchs';
 import Scoreboard from './Components/Scoreboard';
 import Retire from './Components/Retire';
+import Fallofwicket from './Components/Fallofwicket';
 
 const data = {
   "home" : {"homeHeading" : "Cricket",
@@ -28,6 +29,8 @@ function App() {
     <div className="App">
       <Router>
         <Appbar />
+        {/* <Fallofwicket /> */}
+
         {/* <Form />  */}
         {/* <Byredux /> */}
         {/* <Game /> */}
@@ -38,6 +41,7 @@ function App() {
           <Route exact path="/openers"  element={<Openers data={data.openers}/>} />
           <Route exact path="/livematch" element={<LiveMatch/>} />
           <Route exact path="/livematchs" element={<LiveMatchs/>} />
+          <Route exact path="/fallofwicket" element={<Fallofwicket/>} />
         </Routes>
       </Router>
     </div>

@@ -41,6 +41,10 @@
     color: white;
 }
 .popup{
-    background-color: green;
+    background-color: silver;
     width:100%;
+}
+.fadepopup{
+    background-color: red;
+    padding:'50px'
 }

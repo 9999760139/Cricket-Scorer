@@ -94,49 +94,67 @@ export const handleBowler = (bowler) => {
         // console.log("Host bowler", bowler)
     }
 }
+export const handleBowlerRun = (bowlerrun) => {
+    return (dispatch) => {
+        dispatch({
+            type: 'Bowlerrun',
+            payload: bowlerrun
+        })
+        // console.log("Host bowler", bowler)
+    }
+}
+export const handleBowlerbowl = (bowlerbowl) => {
+    return (dispatch) => {
+        dispatch({
+            type: 'bowlerbowl',
+            payload: bowlerbowl
+        })
+        // console.log("Host bowler", bowler)
+    }
+}
 //second page compleate here//
 
-export const handleAllRuns= (totalruns) =>{
-    return(dispatch) =>{
+export const handleAllRuns = (totalruns) => {
+    return (dispatch) => {
         dispatch({
-            type:"totalruns",
-            payload:totalruns
+            type: "totalruns",
+            payload: totalruns
         })
         // console.log("totalruns:",totalruns);
     }
 }
-export const handleOver=(over) =>{
-    return(dispatch)=>{
+export const handleOver = (over) => {
+    return (dispatch) => {
         dispatch({
-            type:"over",
-            payload:over
+            type: "over",
+            payload: over
         })
-        console.log("over :",over);
+        console.log("over :", over);
     }
 }
-export const handleBalls=(ball) =>{
-    return(dispatch)=>{
+export const handleBalls = (ball) => {
+    return (dispatch) => {
         dispatch({
-            type:"ball",
-            payload:ball
+            type: "ball",
+            payload: ball
         })
         // console.log("balls :",ball);
     }
 }
-export const handleStrikerballs=(strikerball) =>{
-    return(dispatch)=>{
+export const handleStrikerballs = (strikerball) => {
+    return (dispatch) => {
         dispatch({
-            type:"strikerball",
-            payload:strikerball
+            type: "strikerball",
+            payload: strikerball
         })
         // console.log("strikerballs :",strikerball);
     }
 }
-export const handleNonstrikerballs=(nonstrikerball) =>{
-    return(dispatch)=>{
+export const handleNonstrikerballs = (nonstrikerball) => {
+    return (dispatch) => {
         dispatch({
-            type:"nonstrikerball",
-            payload:nonstrikerball
+            type: "nonstrikerball",
+            payload: nonstrikerball
         })
         // console.log("nonstrikerballs :",nonstrikerball);
     }
@@ -214,22 +232,65 @@ export const handleNonstrikerRun = (nonstrikerRun) => {
 //         console.log("run", run)
 //     }
 // }
-export const handleWide= (extra) =>{
-    return (dispatch) =>{
+export const handlestrikerFours = (sfours) => {
+    return (dispatch) => {
         dispatch({
-            type:"wide",
-            payload:extra
+            type: 'sfours',
+            payload: sfours
+        })
+        // console.log("fours:",fours)
+    }
+}
+export const handlenonstrikerFours = (nsfours) => {
+    return (dispatch) => {
+        dispatch({
+            type: 'nsfours',
+            payload: nsfours
+        })
+        // console.log("fours:",fours)
+    }
+}
+export const handlestrikerSix = (ssix) => {
+    return (dispatch) => {
+        dispatch({
+            type: 'ssix',
+            payload: ssix
+        })
+        // console.log("six:",six)
+    }
+}
+export const handlenonstrikerSix = (nssix) => {
+    return (dispatch) => {
+        dispatch({
+            type: 'nssix',
+            payload: nssix
+        })
+        // console.log("six:",nssix)
+    }
+}
+export const handleWide = (wides) => {
+    return (dispatch) => {
+        dispatch({
+            type: "wides",
+            payload: wides   
+        })
+        console.log("wides",wides);
+    }
+}
+export const handleByes = (byes) => {
+    return (dispatch) => {
+        dispatch({
+            type: "byes",
+            payload: byes
         })
     }
 }
-
-
-export const handleFours= (fours) =>{
-    return (dispatch) =>{
+export const handleCurrentrunrate= (currentrunrate) =>{
+    return(dispatch) =>{
         dispatch({
-            type:"fours",
-            payload:fours
+            type:'currentrunrate',
+            payload:currentrunrate
         })
-        console.log("fours:",fours)
+        console.log("handleCurrentrunrate clicked",currentrunrate)
     }
 }

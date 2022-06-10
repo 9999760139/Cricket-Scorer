@@ -14,10 +14,17 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { actionCreators } from '../State'
 import { bindActionCreators } from 'redux'
+import { CollectionsBookmarkRounded } from '@mui/icons-material';
+import Popper from '@mui/material/Popper';
+import Fade from '@mui/material/Fade';
+import { Link, useNavigate } from "react-router-dom";
+import { handleWide } from '../State/actionCreators';
+import Snackbar from '@mui/material/Snackbar';
+import Slide from '@mui/material/Slide';
 
 // const mapStateToProps = state => ({
 //     host: state.host,
@@ -41,6 +48,7 @@ const LiveMatch = (props) => {
     // const run = props.run
     // console.log("host:", run)
 
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     // const {run,striker,nonstriker,host,visitor} = useSelector(state => {state.striker,
     // state.run,state.nonstriker,state.host,state.visitor});
@@ -56,19 +64,44 @@ const LiveMatch = (props) => {
     const ball = useSelector(state => state.ball);
     const strikerball = useSelector(state => state.strikerball);
     const nonstrikerball = useSelector(state => state.nonstrikerball);
-    const { handleStrikerRun, handleAllRuns,handleNonstrikerRun,handleBalls,handleStrikerballs,handleNonstrikerballs,handleOver} = bindActionCreators(actionCreators, dispatch);
+    const sfourss = useSelector(state => state.sfours);
+    const ssixs = useSelector(state => state.ssix);
+    const nsfourss = useSelector(state => state.nsfours);
+    const nssixs = useSelector(state => state.nssix);
+    const wides = useSelector(state => state.wides);
+    const currentrunrate = useSelector(state => state.currentrunrate);
+    const byess = useSelector(state => state.byes);
+    const bowler = useSelector(state => state.bowler);
+    const bowlerrun = useSelector(state => state.bowlerrun);
+    const bowlerbowl = useSelector(state => state.bowlerbowl);
+    const { handleStrikerRun, handleAllRuns, handleNonstrikerRun, handleBalls, handleStrikerballs, handleNonstrikerballs, handleOver, handlestrikerFours, handlenonstrikerFours, handlestrikerSix, handlenonstrikerSix, handleWide, handleByes, handleCurrentrunrate, handleBowler, handleBowlerRun, handleBowlerbowl } = bindActionCreators(actionCreators, dispatch);
 
     // const [totalRuns, setTotalRuns] = useState(0)
-    const [currentRunRate, setCurrentRunRate] = useState();
+    // const [currentRunRate, setCurrentRunRate] = useState();
+    const [balls, setBalls] = useState(0);
     const [wide, setWide] = useState(false);
     const [noball, setNoball] = useState(false);
     const [legbyes, setLegbyes] = useState(false);
     const [wicket, setWicket] = useState(false);
     const [byes, setByes] = useState(false);
-    const [extrarun, setExtraerun] = useState("");
+    const [extrarun, setExtrarun] = useState(0);
     const [runs, setRuns] = useState([]);
+    const [run, setrun] = useState(0);
     const [changestriker, setChangestriker] = useState(false);
-    console.log("runs :", runs);
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [open, setOpen] = React.useState(false);
+    const [openpartnership, setOpenpartnership] = React.useState(false);
+    const [placement, setPlacement] = React.useState();
+    const [strikers,setStrikers] = useState(["striker"])
+    // const [transition, setTransition] = React.useState({
+    //     openu: false,
+    //     vertical: 'top',
+    //     horizontal: 'center'
+    // });
+    const inputRef = useRef();
+
+    // console.log("runs :", runs);
     // const [totalruns, setTotalruns] = useState(extrarun + runs);
 
     const StyledFormControlLabel = styled((props) => <FormControlLabel {...props} />)(
@@ -99,12 +132,6 @@ const LiveMatch = (props) => {
         },
     }));
 
-
-    const handleOnExtra = (event) => {
-        setExtraerun(event.target.value);
-        console.log("handleOnExtra work");
-        console.log(extrarun);
-    }
     function createData(
         Batsman,
         R,
@@ -117,18 +144,19 @@ const LiveMatch = (props) => {
     }
 
     const rows = [
-        createData(striker, strikerRun, strikerball, 24, 4.0, 300),
-        createData(nonstriker, nonstrikerRun, nonstrikerball, 37, 4.3, 250),
+        createData(striker, strikerRun, strikerball, sfourss, ssixs, 300),
+        createData(nonstriker, nonstrikerRun, nonstrikerball, nsfourss, nssixs, 250),
     ];
 
     const handleExtras = (e) => {
         var name = e.target.name;
-        var values = e.target.value
-        console.log("handleExtras clicked name :", name, "value :", values)
+        var values = Number(e.target.value);
+        setExtrarun(values);
+        console.log("handleExtras clicked name :", name, "value :", values);
         if (name === "wide") {
             setWide(!wide);
             setNoball(false);
-            console.log("!wide")
+            // console.log("!wide")
         }
         else if (name === "noball") {
             setNoball(!noball);
@@ -151,141 +179,240 @@ const LiveMatch = (props) => {
             setWicket(!wicket);
             // setWide(false)
             // setByes(false)
-            console.log("noballfalse")
+            // console.log("noballfalse")
         }
         else {
             console.log("error")
         }
     }
     const handleruns = (e) => {
-
+        e.preventDefault();
         var name = e.target.name;
-
         var value = Number(e.target.value);
-        if(runs.length === 5){
+        setrun(value);
+        var ballnumber = Number(balls);
+        console.log("balls outside:", ballnumber, "balls/6", balls / 6);
+        if (ballnumber % 6 === 0) {
+            setBalls(0);
+            setRuns([]);
             handleOver(1)
+            console.log("balls outside enter:", ballnumber, balls)
         }
-        else if (runs.length === 6) {
-            // handleOver(1)
-            setRuns([])
+        if(wicket === true){
+            navigate("/fallofwicket")
         }
-        function currentRun() {
+        // else if (ballnumber%6 === 6) {
+        //     // handleOver(1)
+        //     setRuns([]);    
+        // }
+
+        function currentRun(e) {
+            // e.preventDefault();
             if (changestriker === false) {
                 console.log("changestriker is false")
+                // if(wide===true && value === 0||2||4||6){
+                //     handleStrikerRun(value)
+                //     // var joined = runs.concat(value);
+                //     handleBalls(0);
+                //     setBalls(balls + 0);
+                //     handleStrikerballs(1)
+                //     setRuns(runs => [...runs, value])
+                //     console.log("wide true with run:", runs)
+                //     handleAllRuns(value + extrarun)
+                // }
+                // else if(noball===true && value === 0||1||2||3||4||5||6){
+                //     handleStrikerRun(value)
+                //     // var joined = runs.concat(value);
+                //     handleBalls(0);
+                //     setBalls(balls + 0);
+                //     handleStrikerballs(1)
+                //     setRuns(runs => [...runs, value])
+                //     console.log("wide true with run:", runs)
+                //     handleAllRuns(value + extrarun)
+                // }
                 if (name === "zero") {
                     handleStrikerRun(value)
                     // var joined = runs.concat(value);
                     handleBalls(1);
+                    handleBowlerRun(0);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
                     console.log("runs:", runs)
-                    handleAllRuns(value)
+                    handleAllRuns(value + extrarun)
                 }
                 else if (name === "one") {
                     handleStrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(1);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handleAllRuns(value + extrarun)
                     setChangestriker(!changestriker)
                 }
                 else if (name === "two") {
                     handleStrikerRun(value)
                     handleBalls(1)
+                    handleBowlerRun(2);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handleAllRuns(value + extrarun)
                 }
                 else if (name === "three") {
                     handleStrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(3);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handleAllRuns(value + extrarun)
                     setChangestriker(!changestriker)
+
                 }
                 else if (name === "four") {
                     handleStrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(4);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handlestrikerFours(1);
+                    handleAllRuns(value + extrarun)
                 }
                 else if (name === "five") {
                     handleStrikerRun(value)
                     handleBalls(1)
+                    handleBowlerRun(5);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handleAllRuns(value + extrarun)
                     setChangestriker(!changestriker)
                 }
                 else {
                     handleStrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(6);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleStrikerballs(1)
                     setRuns(runs => [...runs, value])
-                    handleAllRuns(value)
+                    handlestrikerSix(1);
+                    handleAllRuns(value + extrarun)
                 }
             }
-            else{
+            else {
                 console.log("changestriker is true")
-                if(name === "zero" ){
+                if (name === "zero") {
                     handleNonstrikerRun(value)
-                    handleBalls(0)
+                    handleBalls(0);
+                    handleBowlerRun(0);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(0)
                     // var joined = runs.concat(value);
-                    setRuns(runs => [...runs,value])
-                    console.log("runs:",runs)
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    console.log("runs:", runs)
+                    handleAllRuns(value + extrarun)
                 }
-                else if(name === "one"){
+                else if (name === "one") {
                     setChangestriker(!changestriker)
                     handleNonstrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(1);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    handleAllRuns(value + extrarun)
                 }
-                else if(name === "two"){
+                else if (name === "two") {
                     handleNonstrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(2);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    handleAllRuns(value + extrarun)
                 }
-                else if(name === "three"){
+                else if (name === "three") {
                     setChangestriker(!changestriker)
                     handleNonstrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(3);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    handleAllRuns(value + extrarun)
                 }
-                else if(name === "four"){
+                else if (name === "four") {
                     handleNonstrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(4);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    handlenonstrikerFours(1);
+                    handleAllRuns(value + extrarun)
                 }
-                else if(name === "five"){
+                else if (name === "five") {
                     setChangestriker(!changestriker)
                     handleNonstrikerRun(value)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
-                    handleBalls(1)
+                    setRuns(runs => [...runs, value])
+                    handleAllRuns(value + extrarun)
+                    handleBalls(1);
+                    handleBowlerRun(5);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
                 }
-                else{
+                else {
                     handleNonstrikerRun(value)
-                    handleBalls(1)
+                    handleBalls(1);
+                    handleBowlerRun(6);
+                    handleBowlerbowl(1);
+                    setBalls(balls + 1);
                     handleNonstrikerballs(1)
-                    setRuns(runs => [...runs,value])
-                    handleAllRuns(value)
+                    setRuns(runs => [...runs, value])
+                    handlenonstrikerSix(1);
+                    handleAllRuns(value + extrarun)
                 }
             }
         }
+        var b = balls / 6
+        var c = totalruns / b
+        var a = c.toFixed(2);
+        handleCurrentrunrate(a)
+        console.log("currentrunrate", a)
         currentRun()
+        if (wide === true) {
+            handleWide(1);
+        }
+        else if (byes === true) {
+            console.log("lastvalue :", value);
+            handleByes(value);
+        }
+        if (wide === true || noball === true) {
+            handleBalls(0);
+            console.log("wide noball true")
+        }
+        setExtrarun(0)
+        setWicket(false)
+        setLegbyes(false)
+        setByes(false)
+        setNoball(false)
+        setWide(false)
         // if(ball === 0){
         //     handleOver(0);
         //     handleBalls(0);  
@@ -301,13 +428,50 @@ const LiveMatch = (props) => {
         console.log("handleruns clicked", name, value)
 
     }
+    const handleSwap = () => {
+        setChangestriker(!changestriker)
+    }
+    const handleClickextra = (newPlacement) => (event) => {
+        setAnchorEl(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+    };
+    const handlepartnership = (newPlacement) => (event) => {
+        setAnchorEl(event.currentTarget);
+        setOpenpartnership((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+    };
+    const [state, setState] = React.useState({
+        open: false,
+        vertical: 'top',
+        horizontal: 'center',
+    });
+
+    const { vertical, horizontal, openu } = state;
+
+    const handleClicku = (newState) => () => {
+        setState({ openu: true, ...newState });
+    };
+
+    const handleCloseu = () => {
+        setState({ ...state, openu: false });
+    };
+
+
+
     return (
         <div >
             <Header />
+            <h1>nitin</h1>
+            {strikers.map((s,index)=>{
+                <div key={index}>
+                    <p>{s}</p>
+                </div>
+            })}
             {/* <Box className="TeamsHeader">
                 <h4>{host} v/s {visitor}</h4>
             </Box>  */}
-            {/* <button value='1' onClick={() => handleOver(2)}>handleBallss</button> */}
+            {/* <button value='1' onClick={() => setBalls(0)}>handleBallss{balls}</button> */}
             <Box className="scorecard">
                 <Box className="teamname">
                     <Typography variant="h5">{host}, ist inning </Typography>
@@ -316,13 +480,13 @@ const LiveMatch = (props) => {
                 <Box className="score">
                     <Box className="score_runs">
                         <Typography variant="h4">{totalruns > 0 ? totalruns : "00"}-0</Typography>
-                        <Typography variant='h6' sx={{alignSelf:"flex-end",mx:3}}>{over}.{ball}</Typography>
+                        <Typography variant='h6' sx={{ alignSelf: "flex-end", mx: 3 }}>{over}.{balls}</Typography>
                         <br />
                         {/* <Typography variant="h4" sx={{ px: 3 }}>0-0</Typography>
                         <Typography variant="h6" sx={{ px: 0, alignSelf: "end" }}>(0.0)</Typography> */}
                     </Box>
                     <Box className="score_runs">
-                        <Typography variant="h5">{currentRunRate > 0 ? currentRunRate : "00.00"}</Typography>
+                        <Typography variant="h5">{currentrunrate}</Typography>
                     </Box>
                 </Box>
             </Box>
@@ -343,7 +507,7 @@ const LiveMatch = (props) => {
                             {rows.map((row) => (
                                 <StyledTableRow key={row.name}>
                                     <StyledTableCell component="th" scope="row">
-                                        {row.Batsman}
+                                        {row.Batsman}  {setChangestriker ? '*' : ""}
                                     </StyledTableCell>
                                     <StyledTableCell align="right">{row.R}</StyledTableCell>
                                     <StyledTableCell align="right">{row.B}</StyledTableCell>
@@ -352,6 +516,19 @@ const LiveMatch = (props) => {
                                     <StyledTableCell align="right">{row.SR}</StyledTableCell>
                                 </StyledTableRow>
                             ))}
+                            <hr width="100%" />
+                            {/* {rows.map((row) => ( */}
+                            <StyledTableRow >
+                                <StyledTableCell component="th" scope="row">
+                                    {bowler}
+                                </StyledTableCell>
+                                <StyledTableCell align="right">{bowlerrun}</StyledTableCell>
+                                <StyledTableCell align="right">{bowlerbowl}</StyledTableCell>
+                                <StyledTableCell align="right">four</StyledTableCell>
+                                <StyledTableCell align="right">six</StyledTableCell>
+                                <StyledTableCell align="right">sr</StyledTableCell>
+                            </StyledTableRow>
+                            {/* ))} */}
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -368,23 +545,76 @@ const LiveMatch = (props) => {
             <Box className="this_over_extras">
                 <FormGroup>
                     <Box className="extraoptions">
-                        <Box><FormControlLabel name="wide" value={wide.value} control={<Checkbox checked={wide} onClick={handleExtras} />} label="Wide" /></Box>
-                        <Box><FormControlLabel name="noball" control={<Checkbox checked={noball} onClick={handleExtras} />} label="Noball" /></Box>
-                        <Box><FormControlLabel name="legbyes" control={<Checkbox checked={legbyes} onClick={handleExtras} />} label="Leg Byes" /></Box>
-                        <Box><FormControlLabel name="byes" control={<Checkbox checked={byes} onClick={handleExtras} />} label="Byes" /></Box>
-                        <Box><FormControlLabel name="wicket" control={<Checkbox checked={wicket} onClick={handleExtras} />} label="Wicket" /></Box>
-                        <Box><Button variant="contained" sx={{ mx: 3 }} >Retire</Button></Box>
-                        <Box><Button variant="contained" sx={{ mx: 3 }}>Swap Batsman</Button></Box>
+                        <Box><FormControlLabel name="wide" value="1" control={<Checkbox checked={wide} onClick={handleExtras} />} label="Wide" /></Box>
+                        <Box><FormControlLabel name="noball" value="1" control={<Checkbox checked={noball} onClick={handleExtras} />} label="Noball" /></Box>
+                        <Box><FormControlLabel name="legbyes" value="0" control={<Checkbox checked={legbyes} onClick={handleExtras} />} label="Leg Byes" /></Box>
+                        <Box><FormControlLabel name="byes" value="0" control={<Checkbox checked={byes} onClick={handleExtras} />} label="Byes" /></Box>
+                        <Box><FormControlLabel name="wicket" value="0" control={<Checkbox checked={wicket} onClick={handleExtras} />} label="Wicket" /></Box>
+                        <Box><Link to="/retire"><Button variant="contained" sx={{ mx: 3 }} >Retire</Button></Link></Box>
+                        <Box><Button variant="contained" sx={{ mx: 3 }} onClick={handleSwap}>Swap Batsman</Button></Box>
                     </Box>
                 </FormGroup>
             </Box>
             <Box className="buttons_runs_box">
                 <Box className="buttons">
-                    <Button variant="contained" sx={{ width: "100%", borderRadius: "10px", my: 1 }}>Undo</Button>
+                    <Button onClick={handleClicku({
+                        vertical: 'top',
+                        horizontal: 'center',
+                    })} variant="contained" sx={{ width: "100%", borderRadius: "10px", my: 1 }}>Undo</Button>
+                    <Snackbar
+                        anchorOrigin={{ vertical, horizontal }}
+                        open={openu}
+                        onClose={handleCloseu}
+                        // message="I love snacks"
+                        key={vertical + horizontal}
+                    ><Box sx={{ background: 'silver', width: '50vw', padding: '30px' }}>
+                            <Typography variant='h4'>Undo</Typography>
+                            <Typography>Are You sure?</Typography>
+                            <Box sx={{float:'right',marginTop:'10%'}}>
+                                <Button sx={{mx:4}} variant='contained' onClick={handleCloseu}>CANCEL</Button>
+                                <Button align='right' variant='contained'>OK</Button>
+                            </Box>
+                        </Box>
+                    </Snackbar>
                     <br />
-                    <Button variant="contained" sx={{ width: "100%", borderRadius: "10px" }}>Partnerships</Button>
+                    <Button variant="contained" sx={{ width: "100%", borderRadius: "10px" }} onClick={handlepartnership('top')}>Partnerships</Button>
+                    <Popper  open={openpartnership} anchorEl={anchorEl} placement={placement} transition >
+                        {({ TransitionProps }) => (
+                            <Fade {...TransitionProps} timeout={350}  >
+                                <Paper className='fadepopup' sx={{width:'94vw',mx:4}}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Typography className='popup' sx={{ p: 2 }}>
+                                            {striker}
+                                        </Typography>
+                                        <Typography className='popup' sx={{ p: 2 }}>
+                                            {nonstriker}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Typography className='popup' sx={{ p: 2 }}>
+                                            {strikerRun}
+                                        </Typography>
+                                        <Typography className='popup'>{strikerRun + nonstrikerRun}<br />({balls})</Typography>
+                                        <Typography className='popup' sx={{ p: 2 }}>
+                                            {nonstrikerRun}
+                                        </Typography>
+                                    </Box>
+                                    <Box className='popup'>Extras:{wides + byess}</Box>
+                                </Paper>
+                            </Fade>
+                        )}
+                    </Popper>
                     <br />
-                    <Button variant="contained" sx={{ width: "100%", borderRadius: "10px", my: 1 }}>Extras</Button>
+                    <Button variant="contained" sx={{ width: "100%", borderRadius: "10px", my: 1 }} onClick={handleClickextra('bottom')}>Extras</Button>
+                    <Popper open={open} anchorEl={anchorEl} placement={placement} transition >
+                        {({ TransitionProps }) => (
+                            <Fade {...TransitionProps} timeout={350} >
+                                <Paper >
+                                    <Typography className='popup' sx={{ p: 2 }}>Extras:{byess}B,0LB,{wides}WD,0NB,0P</Typography>
+                                </Paper>
+                            </Fade>
+                        )}
+                    </Popper>
                 </Box>
                 <Box className="runs">
                     <Box className="runset">

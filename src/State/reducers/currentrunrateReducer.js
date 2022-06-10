@@ -1,5 +1,6 @@
-const reducer = (state='Nonstriker',action) =>{
-    if (action.type==='Nonstriker'){
+
+const reducer= (state=0,action) =>{
+    if(action.type==='currentrunrate') {
         return state = action.payload
     }
     else{
